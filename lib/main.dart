@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'BLE Demo'),
     );
   }
 }
@@ -80,23 +80,21 @@ class _MyHomePageState extends State<MyHomePage> {
       if (Platform.isAndroid) {
         await FlutterBluePlus.turnOn();
       }
+
+      await FlutterBluePlus.adapterState.firstWhere((state) {
+        return state == BluetoothAdapterState.on;
+      });
+
+      await FlutterBluePlus.startScan();
     }), builder: (context, snapshot) {
       if (snapshot.hasError) {
         throw snapshot.error!;
       }
-
-      return FutureBuilder(
-          future: FlutterBluePlus.startScan(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              throw snapshot.error!;
-            }
-
-            return deviceList(context);
-          });
+      return deviceList(context);
     });
   }
 
+  /// List of devices
   Widget deviceList(BuildContext context) {
     return StreamBuilder(
         stream: FlutterBluePlus.scanResults,
@@ -126,6 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  /// No devices found
   Widget _noDevicesState(BuildContext context) {
     return StreamBuilder(
         stream: FlutterBluePlus.isScanning,
